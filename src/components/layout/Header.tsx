@@ -141,7 +141,7 @@ function TopBar() {
     <div className="bg-primary text-white">
       <div className="container-page flex h-8 items-center justify-between text-[11px] font-semibold">
         <div className="flex items-center gap-3">
-          <span>Free Shipping On Order Over à§³999</span>
+          <span>Free Shipping On Order Over ৳999</span>
           <span className="hidden items-center gap-1 transition-colors hover:text-white/80 sm:flex">
             <Download className="h-3 w-3" /> Download App
           </span>
@@ -151,7 +151,7 @@ function TopBar() {
         </div>
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1">English <ChevronDown className="h-3 w-3" /></span>
-          <span className="flex items-center gap-1">à§³ BDT <ChevronDown className="h-3 w-3" /></span>
+          <span className="flex items-center gap-1">BDT <ChevronDown className="h-3 w-3" /></span>
         </div>
       </div>
     </div>
@@ -250,7 +250,7 @@ function SettingsMenu({ onClose }: { onClose: () => void }) {
       <div className="grid gap-1">
         <Link href="/compare" onClick={onClose} className="flex items-center gap-2 rounded px-3 py-2 font-bold hover:bg-soft hover:text-primary"><GitCompare className="h-4 w-4" /> Compare Products</Link>
         <button className="rounded px-3 py-2 text-left font-bold hover:bg-soft hover:text-primary">Language: English</button>
-        <button className="rounded px-3 py-2 text-left font-bold hover:bg-soft hover:text-primary">Currency: à§³ BDT</button>
+        <button className="rounded px-3 py-2 text-left font-bold hover:bg-soft hover:text-primary">Currency: BDT</button>
       </div>
     </div>
   );

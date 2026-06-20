@@ -53,12 +53,6 @@ export function Footer() {
           </form>
         </div>
       </div>
-      <div className="border-t border-zinc-100 py-5">
-        <div className="container-page flex flex-wrap items-center justify-between gap-4 text-xs text-zinc-400">
-          <span>AMARBAZAR ELECTRONICS FRONTEND POWERED BY NEXT.JS</span>
-          <span className="font-bold text-secondary">Visa Â· Mastercard Â· bKash Â· Nagad Â· Rocket</span>
-        </div>
-      </div>
     </footer>
   );
 }
