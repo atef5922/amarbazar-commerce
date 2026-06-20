@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { UserRole } from "@prisma/client";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { env } from "@/lib/env";
+import { getSiteUrl, isEnvConfigError } from "@/lib/env";
 import { assertDatabaseReady, getDatabaseErrorMessage, testDatabaseConnection } from "@/lib/db/connection";
 import { loginSchema, registerSchema } from "@/validators/auth";
 
@@ -13,6 +13,11 @@ const adminRoles = [UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.STAFF] as con
 
 function getMetadataAdminRole(role: unknown) {
   return adminRoles.find((adminRole) => adminRole === role) ?? null;
+}
+
+function getAuthEnvMessage(error: unknown) {
+  if (isEnvConfigError(error)) return error.message;
+  return error instanceof Error ? error.message : "Authentication is not configured correctly.";
 }
 
 async function setAdminCookies(userId: string, role: UserRole) {
@@ -53,7 +58,12 @@ export async function signInWithEmail(_: unknown, formData: FormData) {
   const parsed = loginSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Invalid login input" };
 
-  const supabase = await createSupabaseServerClient();
+  let supabase;
+  try {
+    supabase = await createSupabaseServerClient();
+  } catch (error) {
+    return { ok: false, message: getAuthEnvMessage(error) };
+  }
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) return { ok: false, message: error.message };
 
@@ -64,13 +74,20 @@ export async function registerWithEmail(_: unknown, formData: FormData) {
   const parsed = registerSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Invalid registration input" };
 
-  const supabase = await createSupabaseServerClient();
+  let supabase;
+  let siteUrl;
+  try {
+    supabase = await createSupabaseServerClient();
+    siteUrl = getSiteUrl();
+  } catch (error) {
+    return { ok: false, message: getAuthEnvMessage(error) };
+  }
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
       data: { full_name: parsed.data.fullName, phone: parsed.data.phone },
-      emailRedirectTo: `${env.NEXT_PUBLIC_SITE_URL}/auth/callback`
+      emailRedirectTo: `${siteUrl}/auth/callback`
     }
   });
 
@@ -96,10 +113,17 @@ export async function registerWithEmail(_: unknown, formData: FormData) {
 }
 
 export async function signInWithGoogle() {
-  const supabase = await createSupabaseServerClient();
+  let supabase;
+  let siteUrl;
+  try {
+    supabase = await createSupabaseServerClient();
+    siteUrl = getSiteUrl();
+  } catch (error) {
+    redirect(`/login?error=${encodeURIComponent(getAuthEnvMessage(error))}`);
+  }
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: `${env.NEXT_PUBLIC_SITE_URL}/auth/callback` }
+    options: { redirectTo: `${siteUrl}/auth/callback` }
   });
   if (error) redirect(`/login?error=${encodeURIComponent(error.message)}`);
   if (data.url) redirect(data.url);
@@ -109,9 +133,16 @@ export async function signInWithGoogle() {
 export async function sendPasswordReset(_: unknown, formData: FormData) {
   const email = String(formData.get("email") ?? "");
   if (!email) return { ok: false, message: "Email is required" };
-  const supabase = await createSupabaseServerClient();
+  let supabase;
+  let siteUrl;
+  try {
+    supabase = await createSupabaseServerClient();
+    siteUrl = getSiteUrl();
+  } catch (error) {
+    return { ok: false, message: getAuthEnvMessage(error) };
+  }
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${env.NEXT_PUBLIC_SITE_URL}/reset-password`
+    redirectTo: `${siteUrl}/reset-password`
   });
   if (error) return { ok: false, message: error.message };
   return { ok: true, message: "Password reset link sent" };
@@ -120,7 +151,12 @@ export async function sendPasswordReset(_: unknown, formData: FormData) {
 export async function updatePassword(_: unknown, formData: FormData) {
   const password = String(formData.get("password") ?? "");
   if (password.length < 8) return { ok: false, message: "Password must be at least 8 characters" };
-  const supabase = await createSupabaseServerClient();
+  let supabase;
+  try {
+    supabase = await createSupabaseServerClient();
+  } catch (error) {
+    return { ok: false, message: getAuthEnvMessage(error) };
+  }
   const { error } = await supabase.auth.updateUser({ password });
   if (error) return { ok: false, message: error.message };
   redirect("/login");
@@ -130,7 +166,12 @@ export async function adminSignInWithEmail(_: unknown, formData: FormData) {
   const parsed = loginSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Invalid login input" };
 
-  const supabase = await createSupabaseServerClient();
+  let supabase;
+  try {
+    supabase = await createSupabaseServerClient();
+  } catch (error) {
+    return { ok: false, message: getAuthEnvMessage(error) };
+  }
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error || !data.user?.email) return { ok: false, message: error?.message ?? "Admin login failed" };
 
@@ -180,13 +221,20 @@ export async function adminRegisterWithEmail(_: unknown, formData: FormData) {
 
   const roleValue = String(formData.get("role") ?? "ADMIN");
   const role = roleValue in UserRole && roleValue !== UserRole.USER ? (roleValue as UserRole) : UserRole.ADMIN;
-  const supabase = await createSupabaseServerClient();
+  let supabase;
+  let siteUrl;
+  try {
+    supabase = await createSupabaseServerClient();
+    siteUrl = getSiteUrl();
+  } catch (error) {
+    return { ok: false, message: getAuthEnvMessage(error) };
+  }
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
       data: { full_name: parsed.data.fullName, phone: parsed.data.phone, role },
-      emailRedirectTo: `${env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/admin/dashboard`
+      emailRedirectTo: `${siteUrl}/auth/callback?next=/admin/dashboard`
     }
   });
 
@@ -215,7 +263,11 @@ export async function adminRegisterWithEmail(_: unknown, formData: FormData) {
 }
 
 export async function signOut() {
-  const supabase = await createSupabaseServerClient();
-  await supabase.auth.signOut();
+  try {
+    const supabase = await createSupabaseServerClient();
+    await supabase.auth.signOut();
+  } catch {
+    // If auth is not configured, still allow the UI to return to login safely.
+  }
   redirect("/login");
 }

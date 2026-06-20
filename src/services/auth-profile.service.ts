@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { UserRole } from "@prisma/client";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isEnvConfigError } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 import { testDatabaseConnection } from "@/lib/db/connection";
 
@@ -41,7 +42,13 @@ export async function syncAuthUserToProfile(user: User) {
 }
 
 export async function getCurrentUserProfile() {
-  const supabase = await createSupabaseServerClient();
+  let supabase;
+  try {
+    supabase = await createSupabaseServerClient();
+  } catch (error) {
+    if (isEnvConfigError(error)) return null;
+    throw error;
+  }
   const { data } = await supabase.auth.getUser();
   if (!data.user) return null;
 

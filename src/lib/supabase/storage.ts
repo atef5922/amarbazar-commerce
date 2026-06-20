@@ -1,4 +1,4 @@
-import { env } from "@/lib/env";
+import { getStorageBucket, hasSupabasePublicEnv } from "@/lib/env";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export const storageFolders = ["products", "categories", "brands", "banners", "blogs", "settings"] as const;
@@ -10,6 +10,7 @@ export function buildStoragePath(folder: StorageFolder, fileName: string) {
 }
 
 export function getPublicStorageUrl(path: string) {
+  if (!hasSupabasePublicEnv()) return path;
   const supabase = createSupabaseBrowserClient();
-  return supabase.storage.from(env.SUPABASE_STORAGE_BUCKET).getPublicUrl(path).data.publicUrl;
+  return supabase.storage.from(getStorageBucket()).getPublicUrl(path).data.publicUrl;
 }
