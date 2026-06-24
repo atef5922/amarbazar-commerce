@@ -6,7 +6,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/common/Button";
-import { PageHero } from "@/components/common/PageHero";
 import { FAQAccordion } from "@/components/common/FAQAccordion";
 import { contactInfo, supportTypes } from "@/data/contact";
 import { contactFaqs } from "@/data/faqs";
@@ -61,8 +60,6 @@ export function ContactPageClient() {
 
   return (
     <main className="bg-soft">
-      <PageHero title="Contact Us" subtitle="We are here to help you with orders, products, and support." />
-
       <section className="py-10 lg:py-12">
         <div className="container-page grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {contactInfo.map((item) => (

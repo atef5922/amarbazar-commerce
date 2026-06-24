@@ -73,6 +73,11 @@ textarea {
   transform-origin: left;
 }
 
+.hover-underline.active::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
 .field {
   min-height: 44px;
   width: 100%;

@@ -281,6 +281,7 @@ function NavLinks({ pathname, mobileOpen, variant }: { pathname: string; mobileO
               variant === "expanded" && "hover:text-white/85",
               isCompact && "hover:text-primary",
               isMobilePanel && "hover:text-primary",
+              active && "active",
               active && (variant === "expanded" ? "text-white" : "text-primary")
             )}
           >

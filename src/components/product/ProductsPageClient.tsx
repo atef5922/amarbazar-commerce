@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -16,7 +16,6 @@ import {
   X
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { PageHero } from "@/components/common/PageHero";
 import { Button } from "@/components/common/Button";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Rating } from "@/components/product/Rating";
@@ -103,9 +102,7 @@ export function ProductsPageClient() {
   }
 
   return (
-    <main className="bg-soft">
-      <PageHero title="Products" subtitle="Discover quality products from AmarBazar" />
-
+    <main className="bg-soft pb-20 lg:pb-0">
       <section className="bg-white py-5">
         <div className="container-page flex gap-3 overflow-x-auto no-scrollbar">
           {collections.map((collection) => (

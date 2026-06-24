@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -109,9 +109,6 @@ export function ShopClient({ initialCategory }: { initialCategory?: string }) {
     return getFlexibleRecommendations(filters, new Set(visible.map((product) => product.id)), 8);
   }, [filtered.length, filters.brand, filters.category, visible]);
   const activeChips = getActiveChips(filters);
-  const pageTitle = filters.brand !== "All" ? `${filters.brand} Electronics` : filters.category !== "All" ? filters.category : "Shop Electronics";
-  const breadcrumbLabel = filters.brand !== "All" ? filters.brand : filters.category !== "All" ? filters.category : "Shop";
-  const resultLabel = `${filtered.length} ${filtered.length === 1 ? "product" : "products"} found`;
 
   function updateFilter<K extends keyof typeof filters>(key: K, value: (typeof filters)[K]) {
     setFilters((current) => ({ ...current, [key]: value }));
@@ -153,21 +150,6 @@ export function ShopClient({ initialCategory }: { initialCategory?: string }) {
 
   return (
     <main className="bg-soft pb-20 lg:pb-0">
-      <section className="bg-white py-10 text-center">
-        <div className="container-page">
-          <h1 className="text-3xl font-black uppercase tracking-wide text-zinc-900">{pageTitle}</h1>
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-zinc-500">
-            Find original electronics, gadgets, and accessories from trusted brands in Bangladesh.
-          </p>
-          <div className="mt-4 flex items-center justify-center gap-2 text-xs font-black uppercase">
-            <Link href="/" className="hover:text-primary">Home</Link>
-            <span>/</span>
-            <span className="text-primary">{breadcrumbLabel}</span>
-          </div>
-          <p className="mt-3 text-sm font-bold text-secondary">{resultLabel}</p>
-        </div>
-      </section>
-
       <section className="container-page grid items-start gap-6 py-8 lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
         <aside className="hidden self-start lg:block">
           <div className="sticky top-28 grid gap-5">
